@@ -1,12 +1,12 @@
 #ifndef FUNCIONES_H
 #define FUNCIONES_H
 
-void imprimirBytes(unsigned char* tablero, int filas, int columnas);
-void detectarCombinacion(unsigned char* tablero, int filas, int columnas);
-void eliminarFicha(unsigned char * tablero, int fila, int columna, int columnas);
-void imprimirByte(unsigned char b);
-void guardarFicha(unsigned char* tablero, int fila, int columna, int columnas, int numero);
+void imprimirBytes(unsigned char* tablero, int filas, int columnas);//recorrer el arreglo e imprimir todos los bytes
 
-int obtenerFicha(unsigned char* tablero, int fila,int columna,int columnas);
+void eliminarFicha(unsigned char * tablero, int fila, int columna, int columnas); //poner un campo de 3 bits en 0
+void imprimirByte(unsigned char b);//imprimir un byte en binario
+void guardarFicha(unsigned char* tablero, int fila, int columna, int columnas, int numero);//escribir un campo de 3 bits en una posición
+
+int obtenerFicha(unsigned char* tablero, int fila,int columna,int columnas);//extraer un campo de 3 bits de una posición
 
 #endif // FUNCIONES_H

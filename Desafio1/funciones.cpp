@@ -16,51 +16,7 @@ void imprimirBytes(unsigned char* tablero, int filas, int columnas)
 }
 
 
-void detectarCombinacion(unsigned char* tablero, int filas, int columnas)
-{
-    //para busacr combinaciones recorremos cad fila y columna comparando con las que tiene a ambos lados
-    bool hubo_match = false;
 
-    std::cout << "\n--- Buscando Combinaciones (Match-3) ---\n";
-
-    // 1. COMPROBACIÓN HORIZONTAL (Fila por fila)
-    for (int i = 0; i < filas; i++) {
-        // Llegamos hasta COLUMNAS - 2 porque evaluamos grupos de 3 (j, j+1, j+2)
-        for (int j = 0; j < columnas - 2; j++) {
-            int f1 = obtenerFicha(tablero, i, j,columnas);
-            int f2 = obtenerFicha(tablero, i, j + 1,columnas);
-            int f3 = obtenerFicha(tablero, i, j + 2,columnas);
-
-            // Si las tres son iguales y NO son fichas vacías (0)
-            if (f1 != 0 && f1 == f2 && f1 == f3) {
-                std::cout << "[Match Horizontal] Ficha " << f1 << " en la fila " << i
-                     << ", columnas: (" << j << ", " << j+1 << ", " << j+2 << ")\n";
-                hubo_match = true;
-            }
-        }
-    }
-
-    // 2. COMPROBACIÓN VERTICAL (Columna por columna)
-    for (int j = 0; j < columnas; j++) {
-        // Llegamos hasta FILAS - 2 porque evaluamos grupos de 3 (i, i+1, i+2)
-        for (int i = 0; i < filas - 2; i++) {
-            int f1 = obtenerFicha(tablero, i, j,columnas);
-            int f2 = obtenerFicha(tablero, i + 1, j,columnas);
-            int f3 = obtenerFicha(tablero, i + 2, j,columnas);
-
-            // Si las tres son iguales y NO son fichas vacías (0)
-            if (f1 != 0 && f1 == f2 && f1 == f3) {
-                std::cout << "[Match Vertical] Ficha " << f1 << " en la columna " << j
-                     << ", filas: (" << i << ", " << i+1 << ", " << i+2 << ")\n";
-                hubo_match = true;
-            }
-        }
-    }
-
-    if (!hubo_match) {
-        std::cout << "No se encontraron combinaciones en este turno.\n";
-    }
-}
 void eliminarFicha(unsigned char * tablero, int fila, int columna, int columnas)
 {
     int indice = fila * columnas + columna;
