@@ -1,11 +1,16 @@
 #include "funciones.h"
 #include <iostream>
 
+int bytesNecesarios(int filas, int columnas)
+{
+    int bits = filas * columnas * 3;
+    return (bits + 7) / 8;
+}
+
 void imprimirBytes(unsigned char* tablero, int filas, int columnas)
 {
-    int bits_necesarios = filas * columnas * 3;
-    //calcular bytes
-    int bytes_necesarios = ((bits_necesarios+7)/8);
+    int bytes_necesarios = bytesNecesarios(filas, columnas);
+
     std::cout << "\n--- Estado de los bytes ---\n";
     for (int k = 0; k < bytes_necesarios; k++)
     {

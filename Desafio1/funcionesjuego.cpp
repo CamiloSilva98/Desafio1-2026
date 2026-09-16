@@ -3,12 +3,6 @@
 #include <iostream>
 #include <iomanip>
 
-int bytesNecesarios(int filas, int columnas)
-{
-    int bits = filas * columnas * 3;
-    return (bits + 7) / 8;
-}
-
 char convertirASimbolo(int valor)
 {
     switch (valor)
@@ -19,57 +13,243 @@ char convertirASimbolo(int valor)
     case 3: return '%';
     case 4: return '&';
     case 5: return '$';
-    case 6: return 190;   // ¥
+    case 6: return 190;   //
     case 7: return '*';   // estado especial
     default: return '?';
     }
 }
 
-void detectarCombinacion(unsigned char* tablero, int filas, int columnas)
+int maxCombinaciones(int filas, int columnas)
 {
-    //para busacr combinaciones recorremos cad fila y columna comparando con las que tiene a ambos lados
-    bool hubo_match = false;
+    return filas * (columnas / 3) + columnas * (filas / 3);
+}
 
-    std::cout << "\n--- Buscando Combinaciones (Match-3) ---\n";
+int detectarCombinacion(unsigned char* tablero, int filas, int columnas,
+                        int matchFilaInicio[], int matchColInicio[],
+                        int matchFilaFin[], int matchColFin[])
+{
+    int total = 0;
 
-    // 1. COMPROBACIÓN HORIZONTAL (Fila por fila)
-    for (int i = 0; i < filas; i++) {
-        // Llegamos hasta COLUMNAS - 2 porque evaluamos grupos de 3 (j, j+1, j+2)
-        for (int j = 0; j < columnas - 2; j++) {
-            int f1 = obtenerFicha(tablero, i, j,columnas);
-            int f2 = obtenerFicha(tablero, i, j + 1,columnas);
-            int f3 = obtenerFicha(tablero, i, j + 2,columnas);
+    // Horizontal: recorrer cada fila buscando rachas
+    for (int i = 0; i < filas; i++)
+    {
+        int inicio = 0;
+        int j = 0;
+        while (j < columnas)
+        {
+            int valorInicio = obtenerFicha(tablero, i, inicio, columnas);
+            int valorActual = obtenerFicha(tablero, i, j, columnas);
 
-            // Si las tres son iguales y NO son fichas vacías (0)
-            if (f1 != 0 && f1 == f2 && f1 == f3) {
-                std::cout << "[Match Horizontal] Ficha " << f1 << " en la fila " << i
-                          << ", columnas: (" << j << ", " << j+1 << ", " << j+2 << ")\n";
-                hubo_match = true;
+            if (valorActual == valorInicio && valorInicio != 0)
+            {
+                j++;
             }
+            else
+            {
+                if ((j - inicio) >= 3)
+                {
+                    matchFilaInicio[total] = i;
+                    matchColInicio[total] = inicio;
+                    matchFilaFin[total] = i;
+                    matchColFin[total] = j - 1;
+                    total++;
+                }
+                inicio = j;
+                j++;
+            }
+        }
+        if ((columnas - inicio) >= 3 &&
+            obtenerFicha(tablero, i, inicio, columnas) != 0)
+        {
+            matchFilaInicio[total] = i;
+            matchColInicio[total] = inicio;
+            matchFilaFin[total] = i;
+            matchColFin[total] = columnas - 1;
+            total++;
         }
     }
 
-    // 2. COMPROBACIÓN VERTICAL (Columna por columna)
-    for (int j = 0; j < columnas; j++) {
-        // Llegamos hasta FILAS - 2 porque evaluamos grupos de 3 (i, i+1, i+2)
-        for (int i = 0; i < filas - 2; i++) {
-            int f1 = obtenerFicha(tablero, i, j,columnas);
-            int f2 = obtenerFicha(tablero, i + 1, j,columnas);
-            int f3 = obtenerFicha(tablero, i + 2, j,columnas);
+    // Vertical: misma logica, recorriendo columnas
+    for (int j = 0; j < columnas; j++)
+    {
+        int inicio = 0;
+        int i = 0;
+        while (i < filas)
+        {
+            int valorInicio = obtenerFicha(tablero, inicio, j, columnas);
+            int valorActual = obtenerFicha(tablero, i, j, columnas);
 
-            // Si las tres son iguales y NO son fichas vacías (0)
-            if (f1 != 0 && f1 == f2 && f1 == f3) {
-                std::cout << "[Match Vertical] Ficha " << f1 << " en la columna " << j
-                          << ", filas: (" << i << ", " << i+1 << ", " << i+2 << ")\n";
-                hubo_match = true;
+            if (valorActual == valorInicio && valorInicio != 0)
+            {
+                i++;
             }
+            else
+            {
+                if ((i - inicio) >= 3)
+                {
+                    matchFilaInicio[total] = inicio;
+                    matchColInicio[total] = j;
+                    matchFilaFin[total] = i - 1;
+                    matchColFin[total] = j;
+                    total++;
+                }
+                inicio = i;
+                i++;
+            }
+        }
+        if ((filas - inicio) >= 3 &&
+            obtenerFicha(tablero, inicio, j, columnas) != 0)
+        {
+            matchFilaInicio[total] = inicio;
+            matchColInicio[total] = j;
+            matchFilaFin[total] = filas - 1;
+            matchColFin[total] = j;
+            total++;
         }
     }
 
-    if (!hubo_match) {
-        std::cout << "No se encontraron combinaciones en este turno.\n";
+    return total;
+}
+
+void eliminarCombinaciones(unsigned char* tablero, int columnas, int total,
+                           int matchFilaInicio[], int matchColInicio[],
+                           int matchFilaFin[], int matchColFin[])
+{
+    for (int k = 0; k < total; k++)
+    {
+        if (matchFilaInicio[k] == matchFilaFin[k])
+        {
+            // horizontal
+            for (int c = matchColInicio[k]; c <= matchColFin[k]; c++)
+                eliminarFicha(tablero, matchFilaInicio[k], c, columnas);
+        }
+        else
+        {
+            // vertical
+            for (int f = matchFilaInicio[k]; f <= matchFilaFin[k]; f++)
+                eliminarFicha(tablero, f, matchColInicio[k], columnas);
+        }
     }
 }
+
+void gravedad(unsigned char* tablero, int filas, int columnas)
+{
+    for (int j = 0; j < columnas; j++)
+    {
+        int filaDestino = filas - 1;
+
+        for (int i = filas - 1; i >= 0; i--)
+        {
+            int valor = obtenerFicha(tablero, i, j, columnas);
+
+            if (valor != 0)
+            {
+                if (i != filaDestino)
+                {
+                    guardarFicha(tablero, filaDestino, j, columnas, valor);
+                    eliminarFicha(tablero, i, j, columnas);
+                }
+                filaDestino--;
+            }
+        }
+    }
+}
+
+void regenerarVacios(unsigned char* tablero, int filas, int columnas)
+{
+    for (int i = 0; i < filas; i++)
+    {
+        for (int j = 0; j < columnas; j++)
+        {
+            if (obtenerFicha(tablero, i, j, columnas) == 0)
+            {
+                int numero = (rand() % 6) + 1;
+                guardarFicha(tablero, i, j, columnas, numero);
+            }
+        }
+    }
+}
+
+void procesarCascada(unsigned char* tablero, int filas, int columnas)
+{
+    int vuelta = 1;
+    int N = maxCombinaciones(filas, columnas);
+    int* matchFilaInicio = new int[N];
+    int* matchColInicio = new int[N];
+    int* matchFilaFin = new int[N];
+    int* matchColFin = new int[N];
+
+    int total;
+    do
+    {
+        total = detectarCombinacion(tablero, filas, columnas,
+                                    matchFilaInicio, matchColInicio,
+                                    matchFilaFin, matchColFin);
+    std::cout << "\n--- Vuelta " << vuelta << ": " << total << " combinaciones ---\n";
+        if (total > 0)
+        {
+            eliminarCombinaciones(tablero, columnas, total,
+                                  matchFilaInicio, matchColInicio,
+                                  matchFilaFin, matchColFin);
+            gravedad(tablero, filas, columnas);
+            regenerarVacios(tablero, filas, columnas);
+        }
+        vuelta++;
+    } while (total > 0);
+
+    delete[] matchFilaInicio;
+    delete[] matchColInicio;
+    delete[] matchFilaFin;
+    delete[] matchColFin;
+}
+void insertarColumna(unsigned char*& tablero, int filas, int& columnas, int columnaInsertar)
+{
+    int nuevasColumnas = columnas + 1;
+    unsigned char* nuevoTablero = new unsigned char[bytesNecesarios(filas, nuevasColumnas)]();
+
+    for (int f = 0; f < filas; f++)
+    {
+        int columnaOrigen = 0;
+        for (int c = 0; c < nuevasColumnas; c++)
+        {
+            if (c == columnaInsertar) continue; // hueco, se llena despues
+            int valor = obtenerFicha(tablero, f, columnaOrigen, columnas);
+            guardarFicha(nuevoTablero, f, c, nuevasColumnas, valor);
+            columnaOrigen++;
+        }
+    }
+
+    delete[] tablero;
+    tablero = nuevoTablero;
+    columnas = nuevasColumnas;
+
+    llenarAleatorio(nuevoTablero, nuevasColumnas, 0, filas, columnaInsertar, columnaInsertar + 1);
+}
+
+void insertarFila(unsigned char*& tablero, int& filas, int columnas, int filaInsertar)
+{
+    int nuevasFilas = filas + 1;
+    unsigned char* nuevoTablero = new unsigned char[bytesNecesarios(nuevasFilas, columnas)]();
+
+    int filaOrigen = 0;
+    for (int f = 0; f < nuevasFilas; f++)
+    {
+        if (f == filaInsertar) continue; // hueco, se llena despues
+        for (int c = 0; c < columnas; c++)
+        {
+            int valor = obtenerFicha(tablero, filaOrigen, c, columnas);
+            guardarFicha(nuevoTablero, f, c, columnas, valor);
+        }
+        filaOrigen++;
+    }
+
+    delete[] tablero;
+    tablero = nuevoTablero;
+    filas = nuevasFilas;
+
+    llenarAleatorio(tablero, columnas, filaInsertar, filaInsertar + 1, 0, columnas);
+}
+
 
 void imprimirTablero(unsigned char* tablero, int filas, int columnas)
 {
@@ -103,7 +283,7 @@ void llenarAleatorio(unsigned char* tablero, int columnas,
     {
         for (int j = columnaInicio; j < columnaFin; j++)
         {
-            int numero = (rand() % 6) + 1;
+            int numero = (rand() % 7) + 1;
             guardarFicha(tablero, i, j, columnas, numero);
         }
     }
