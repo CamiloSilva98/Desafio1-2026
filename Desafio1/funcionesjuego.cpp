@@ -111,6 +111,82 @@ int detectarCombinacion(unsigned char* tablero, int filas, int columnas,
     return total;
 }
 
+void eliminarFila(unsigned char*& tablero, int& filas, int columnas,
+                  int filaEliminar, int& capacidadActual)
+{
+    int nuevasFilas = filas - 1;
+    int necesarios = bytesNecesarios(nuevasFilas, columnas);
+
+    unsigned char* compactado = new unsigned char[necesarios]();
+
+    int filaDestino = 0;
+    for (int f = 0; f < filas; f++)
+    {
+        if (f == filaEliminar) continue;
+        for (int c = 0; c < columnas; c++)
+        {
+            int valor = obtenerFicha(tablero, f, c, columnas);
+            guardarFicha(compactado, filaDestino, c, columnas, valor);
+        }
+        filaDestino++;
+    }
+
+    double uso = (double)necesarios / capacidadActual;
+
+    if (uso < 0.65)
+    {
+        delete[] tablero;
+        tablero = compactado;
+        capacidadActual = necesarios;
+    }
+    else
+    {
+        for (int i = 0; i < necesarios; i++)
+            tablero[i] = compactado[i];
+        delete[] compactado;
+    }
+
+    filas = nuevasFilas;
+}
+
+void eliminarColumna(unsigned char*& tablero, int filas, int& columnas,
+                     int columnaEliminar, int& capacidadActual)
+{
+    int nuevasColumnas = columnas - 1;
+    int necesarios = bytesNecesarios(filas, nuevasColumnas);
+
+    unsigned char* compactado = new unsigned char[necesarios]();
+
+    for (int f = 0; f < filas; f++)
+    {
+        int columnaDestino = 0;
+        for (int c = 0; c < columnas; c++)
+        {
+            if (c == columnaEliminar) continue;
+            int valor = obtenerFicha(tablero, f, c, columnas);
+            guardarFicha(compactado, f, columnaDestino, nuevasColumnas, valor);
+            columnaDestino++;
+        }
+    }
+
+    double uso = (double)necesarios / capacidadActual;
+
+    if (uso < 0.65)
+    {
+        delete[] tablero;
+        tablero = compactado;
+        capacidadActual = necesarios;
+    }
+    else
+    {
+        for (int i = 0; i < necesarios; i++)
+            tablero[i] = compactado[i];
+        delete[] compactado;
+    }
+
+    columnas = nuevasColumnas;
+}
+
 void eliminarCombinaciones(unsigned char* tablero, int columnas, int total,
                            int matchFilaInicio[], int matchColInicio[],
                            int matchFilaFin[], int matchColFin[])
@@ -172,7 +248,7 @@ void regenerarVacios(unsigned char* tablero, int filas, int columnas)
 
 void procesarCascada(unsigned char* tablero, int filas, int columnas)
 {
-    int vuelta = 1;
+    //int vuelta = 1;
     int N = maxCombinaciones(filas, columnas);
     int* matchFilaInicio = new int[N];
     int* matchColInicio = new int[N];
@@ -185,7 +261,7 @@ void procesarCascada(unsigned char* tablero, int filas, int columnas)
         total = detectarCombinacion(tablero, filas, columnas,
                                     matchFilaInicio, matchColInicio,
                                     matchFilaFin, matchColFin);
-    std::cout << "\n--- Vuelta " << vuelta << ": " << total << " combinaciones ---\n";
+    //std::cout << "\n--- Vuelta " << vuelta << ": " << total << " combinaciones ---\n";
         if (total > 0)
         {
             eliminarCombinaciones(tablero, columnas, total,
@@ -194,7 +270,7 @@ void procesarCascada(unsigned char* tablero, int filas, int columnas)
             gravedad(tablero, filas, columnas);
             regenerarVacios(tablero, filas, columnas);
         }
-        vuelta++;
+        //vuelta++;
     } while (total > 0);
 
     delete[] matchFilaInicio;
@@ -202,7 +278,7 @@ void procesarCascada(unsigned char* tablero, int filas, int columnas)
     delete[] matchFilaFin;
     delete[] matchColFin;
 }
-void insertarColumna(unsigned char*& tablero, int filas, int& columnas, int columnaInsertar)
+void insertarColumna(unsigned char*& tablero, int filas, int& columnas, int columnaInsertar, int& capacidadActual)
 {
     int nuevasColumnas = columnas + 1;
     unsigned char* nuevoTablero = new unsigned char[bytesNecesarios(filas, nuevasColumnas)]();
@@ -224,9 +300,10 @@ void insertarColumna(unsigned char*& tablero, int filas, int& columnas, int colu
     columnas = nuevasColumnas;
 
     llenarAleatorio(nuevoTablero, nuevasColumnas, 0, filas, columnaInsertar, columnaInsertar + 1);
+    capacidadActual = bytesNecesarios(filas, nuevasColumnas);
 }
 
-void insertarFila(unsigned char*& tablero, int& filas, int columnas, int filaInsertar)
+void insertarFila(unsigned char*& tablero, int& filas, int columnas, int filaInsertar, int& capacidadActual)
 {
     int nuevasFilas = filas + 1;
     unsigned char* nuevoTablero = new unsigned char[bytesNecesarios(nuevasFilas, columnas)]();
@@ -248,6 +325,7 @@ void insertarFila(unsigned char*& tablero, int& filas, int columnas, int filaIns
     filas = nuevasFilas;
 
     llenarAleatorio(tablero, columnas, filaInsertar, filaInsertar + 1, 0, columnas);
+    capacidadActual = bytesNecesarios(nuevasFilas, columnas);
 }
 
 
@@ -256,7 +334,7 @@ void imprimirTablero(unsigned char* tablero, int filas, int columnas)
     std::cout << "\n -----  Tablero  -----\n";
 
     // Encabezado con numeros de columna, ancho fijo de 2
-    std::cout << "     ";
+    std::cout << "    ";
     for (int c = 1; c <= columnas; c++)
     {
         std::cout << std::setw(2) << c << " ";

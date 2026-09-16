@@ -7,6 +7,24 @@ int bytesNecesarios(int filas, int columnas)
     return (bits + 7) / 8;
 }
 
+void imprimirEstadoMemoria(unsigned char* tablero, int filas, int columnas, int capacidadActual)
+{
+    int enUso = bytesNecesarios(filas, columnas);
+
+    std::cout << "\n--- Memoria reservada: " << capacidadActual
+         << " bytes | En uso: " << enUso << " bytes ---\n";
+
+    for (int k = 0; k < capacidadActual; k++)
+    {
+        std::cout << "Byte " << k << ": ";
+        imprimirByte(tablero[k]);
+        if (k < enUso)
+            std::cout << " (en uso)\n";
+        else
+            std::cout << " (reservado, sin usar)\n";
+    }
+}
+
 void imprimirBytes(unsigned char* tablero, int filas, int columnas)
 {
     int bytes_necesarios = bytesNecesarios(filas, columnas);
