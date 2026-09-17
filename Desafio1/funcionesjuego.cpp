@@ -19,6 +19,40 @@ char convertirASimbolo(int valor)
     }
 }
 
+int calcularPuntosDeMatch(int filaInicio, int colInicio, int filaFin, int colFin)
+{
+    int longitud = (filaInicio == filaFin) ? (colFin - colInicio + 1)
+                                            : (filaFin - filaInicio + 1);
+    int puntos = longitud * 10;
+    if (longitud > 3)
+        puntos += (longitud - 3) * 5;
+    return puntos;
+}
+
+int eliminarCombinaciones(unsigned char* tablero, int columnas, int total,
+                          int matchFilaInicio[], int matchColInicio[], int matchFilaFin[], int matchColFin[])
+{
+    int puntosGanados = 0;
+    for (int k = 0; k < total; k++)
+    {
+        puntosGanados += calcularPuntosDeMatch(matchFilaInicio[k], matchColInicio[k],
+                                               matchFilaFin[k], matchColFin[k]);
+        if (matchFilaInicio[k] == matchFilaFin[k])
+        {
+            // horizontal
+            for (int c = matchColInicio[k]; c <= matchColFin[k]; c++)
+                eliminarFicha(tablero, matchFilaInicio[k], c, columnas);
+        }
+        else
+        {
+            // vertical
+            for (int f = matchFilaInicio[k]; f <= matchFilaFin[k]; f++)
+                eliminarFicha(tablero, f, matchColInicio[k], columnas);
+        }
+    }
+    return puntosGanados;
+}
+
 int maxCombinaciones(int filas, int columnas)
 {
     return filas * (columnas / 3) + columnas * (filas / 3);
@@ -180,32 +214,13 @@ void eliminarColumna(unsigned char*& tablero, int filas, int& columnas,
     else
     {
         for (int i = 0; i < necesarios; i++)
+        {
             tablero[i] = compactado[i];
+        }
         delete[] compactado;
     }
 
     columnas = nuevasColumnas;
-}
-
-void eliminarCombinaciones(unsigned char* tablero, int columnas, int total,
-                           int matchFilaInicio[], int matchColInicio[],
-                           int matchFilaFin[], int matchColFin[])
-{
-    for (int k = 0; k < total; k++)
-    {
-        if (matchFilaInicio[k] == matchFilaFin[k])
-        {
-            // horizontal
-            for (int c = matchColInicio[k]; c <= matchColFin[k]; c++)
-                eliminarFicha(tablero, matchFilaInicio[k], c, columnas);
-        }
-        else
-        {
-            // vertical
-            for (int f = matchFilaInicio[k]; f <= matchFilaFin[k]; f++)
-                eliminarFicha(tablero, f, matchColInicio[k], columnas);
-        }
-    }
 }
 
 void gravedad(unsigned char* tablero, int filas, int columnas)
@@ -246,9 +261,9 @@ void regenerarVacios(unsigned char* tablero, int filas, int columnas)
     }
 }
 
-void procesarCascada(unsigned char* tablero, int filas, int columnas)
+void procesarCascada(unsigned char* tablero, int filas, int columnas, int& puntajeTotal)
 {
-    //int vuelta = 1;
+    int vuelta = 1;
     int N = maxCombinaciones(filas, columnas);
     int* matchFilaInicio = new int[N];
     int* matchColInicio = new int[N];
@@ -258,19 +273,21 @@ void procesarCascada(unsigned char* tablero, int filas, int columnas)
     int total;
     do
     {
+        gravedad(tablero, filas, columnas);
+        regenerarVacios(tablero, filas, columnas);
         total = detectarCombinacion(tablero, filas, columnas,
                                     matchFilaInicio, matchColInicio,
                                     matchFilaFin, matchColFin);
     //std::cout << "\n--- Vuelta " << vuelta << ": " << total << " combinaciones ---\n";
         if (total > 0)
         {
-            eliminarCombinaciones(tablero, columnas, total,
+            int puntosVuelta = eliminarCombinaciones(tablero, columnas, total,
                                   matchFilaInicio, matchColInicio,
                                   matchFilaFin, matchColFin);
-            gravedad(tablero, filas, columnas);
-            regenerarVacios(tablero, filas, columnas);
+            puntajeTotal += puntosVuelta * vuelta;
+            vuelta++;
         }
-        //vuelta++;
+
     } while (total > 0);
 
     delete[] matchFilaInicio;

@@ -3,7 +3,9 @@
 
 char convertirASimbolo(int valor);
 
-int maxCombinaciones(int filas, int columnas);
+int calcularPuntosDeMatch(int filaInicio, int colInicio, int filaFin, int colFin);
+int eliminarCombinaciones(unsigned char* tablero, int columnas, int total,
+                          int matchFilaInicio[], int matchColInicio[], int matchFilaFin[], int matchColFin[]);
 int detectarCombinacion(unsigned char* tablero, int filas, int columnas);
 
 void eliminarFila(unsigned char*& tablero, int& filas, int columnas,
@@ -12,7 +14,7 @@ void eliminarColumna(unsigned char*& tablero, int filas, int& columnas,
                      int columnaEliminar, int& capacidadActual);
 void gravedad(unsigned char* tablero, int filas, int columnas);
 void regenerarVacios(unsigned char* tablero, int filas, int columnas);
-void procesarCascada(unsigned char* tablero, int filas, int columnas);
+void procesarCascada(unsigned char* tablero, int filas, int columnas, int& puntajeTotal);
 void insertarColumna(unsigned char*& tablero, int filas, int& columnas, int columnaInsertar, int &capacidadActual);
 void insertarFila(unsigned char*& tablero, int& filas, int columnas, int filaInsertar, int &capacidadActual);
 void imprimirTablero(unsigned char* tablero, int filas, int columnas);
@@ -20,3 +22,4 @@ void llenarAleatorio(unsigned char* tablero, int columnas,int filaInicio, int fi
                      int columnaInicio, int columnaFin);
 
 #endif // FUNCIONESJUEGO_H
+//

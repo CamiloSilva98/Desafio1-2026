@@ -33,11 +33,11 @@ void juego()
     cout << "Ingrese Columnas: ";
     cin >> columnas;
 
-    int capacidadActual = bytesNecesarios(filas, columnas);
+    int capacidadActual = bytesNecesarios(filas, columnas), puntajeTotal = 0, nada;
     unsigned char* tablero = new unsigned char[capacidadActual]();
     llenarAleatorio(tablero, columnas, 0, filas, 0, columnas);
 
-    procesarCascada(tablero, filas, columnas);
+    procesarCascada(tablero, filas, columnas, nada);
     refrescarPantalla(tablero, filas, columnas);
 
     int opcion;
@@ -100,8 +100,9 @@ void juego()
 
         if (opcion >= 1 && opcion <= 5)
         {
-            procesarCascada(tablero, filas, columnas);
+            procesarCascada(tablero, filas, columnas, puntajeTotal);
             refrescarPantalla(tablero, filas, columnas);
+            cout<<"Puntaje: "<<puntajeTotal;
         }
 
     } while (opcion != 6);
