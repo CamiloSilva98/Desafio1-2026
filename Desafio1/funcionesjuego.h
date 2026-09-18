@@ -9,6 +9,7 @@ int eliminarCombinaciones(unsigned char* tablero, int filas, int columnas, int t
                           int matchColInicio[],int matchFilaFin[], int matchColFin[],int& fichasEliminadas);
 int detectarCombinacion(unsigned char* tablero, int filas, int columnas);
 
+void imprimirTableroBits(unsigned char* tablero, int filas, int columnas);
 void eliminarFila(unsigned char*& tablero, int& filas, int columnas,
                  int filaEliminar, int& capacidadActual);
 void eliminarColumna(unsigned char*& tablero, int filas, int& columnas,

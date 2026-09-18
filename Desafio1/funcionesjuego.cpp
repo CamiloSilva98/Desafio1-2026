@@ -45,7 +45,7 @@ int revisarYEliminarVecinosEspeciales(unsigned char* tablero, int filas, int col
 int generarValorAleatorio()
 {
     int probabilidad = rand() % 100;
-    if (probabilidad < 5) return 7;
+    if (probabilidad < 4) return 7;
 
     return (rand() % 6) + 1;
 }
@@ -190,6 +190,20 @@ int detectarCombinacion(unsigned char* tablero, int filas, int columnas,
     }
 
     return total;
+}
+
+void imprimirTableroBits(unsigned char* tablero, int filas, int columnas) {
+    std::cout << "\n--- Estado del tablero en bits ---\n";
+    for (int i = 0; i < filas; i++) {
+        for (int j = 0; j < columnas; j++) {
+            int numero = obtenerFicha(tablero, i, j, columnas);
+            for (int b = 2; b >= 0; b--) {
+                std::cout << ((numero >> b) & 1);
+            }
+            std::cout << " ";
+        }
+        std::cout << std::endl;
+    }
 }
 
 void eliminarFila(unsigned char*& tablero, int& filas, int columnas,

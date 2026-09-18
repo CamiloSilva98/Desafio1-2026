@@ -10,6 +10,7 @@ void refrescarPantalla(unsigned char* tablero, int filas, int columnas)
 {
     imprimirTablero(tablero, filas, columnas);
     //imprimirBytes(tablero, filas, columnas);
+    imprimirTableroBits(tablero, filas, columnas);
 }
 
 void mostrarMenu()
