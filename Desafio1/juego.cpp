@@ -2,6 +2,8 @@
 #include "funciones.h"
 #include "funcionesjuego.h"
 #include<iostream>
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
 void refrescarPantalla(unsigned char* tablero, int filas, int columnas)
@@ -82,18 +84,33 @@ void juego()
         }
         case 4:
         {
-            int f;
-            cout << "Eliminar fila (1 a " << filas << "): ";
-            cin >> f;
-            eliminarFila(tablero, filas, columnas, f - 1, capacidadActual);
+            if(filas<=1)
+            {
+                cout << "No se puede eliminar: quedaria un tablero sin filas.\n";
+            }
+            else
+            {
+                int f;
+                cout << "Eliminar fila (1 a " << filas << "): ";
+                cin >> f;
+                eliminarFila(tablero, filas, columnas, f - 1, capacidadActual);
+            }
             break;
         }
         case 5:
         {
-            int c;
-            cout << "Eliminar columna (1 a " << columnas << "): ";
-            cin >> c;
-            eliminarColumna(tablero, filas, columnas, c - 1, capacidadActual);
+            if(columnas <= 1)
+            {
+                cout << "No e puede eliminar: quedaria un tablero sin columnas.\n";
+            }
+            else
+            {
+                int c;
+                cout << "Eliminar columna (1 a " << columnas << "): ";
+                cin >> c;
+                eliminarColumna(tablero, filas, columnas, c - 1, capacidadActual);
+            }
+
             break;
         }
         case 6:

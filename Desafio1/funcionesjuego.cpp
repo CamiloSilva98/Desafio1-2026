@@ -2,6 +2,7 @@
 #include "funciones.h"
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 
 char convertirASimbolo(int valor)
 {
