@@ -108,7 +108,6 @@ int obtenerFicha(unsigned char* tablero, int fila,int columna,int columnas)
     int bit_inicial = indice * 3;
     int byte_index = bit_inicial / 8;
     int bit_offset = bit_inicial % 8;
-    int valor;
     int espacio = 8 - bit_offset; //calculamos el espacio qoe ocupa pra saber si esta en 1 solo byte
     int ficha;
     if(espacio>=3){
