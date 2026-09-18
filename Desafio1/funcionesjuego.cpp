@@ -19,37 +19,83 @@ char convertirASimbolo(int valor)
     }
 }
 
+int revisarYEliminarVecinosEspeciales(unsigned char* tablero, int filas, int columnas, int fila, int columna)
+{
+    int encontrados = 0;
+    int df[4] = {-1, 1, 0, 0};
+    int dc[4] = {0, 0, -1, 1};
+
+    for (int d = 0; d < 4; d++)
+    {
+        int nf = fila + df[d];
+        int nc = columna + dc[d];
+        if (nf >= 0 && nf < filas && nc >= 0 && nc < columnas)
+        {
+            if (obtenerFicha(tablero, nf, nc, columnas) == 7)
+            {
+                eliminarFicha(tablero, nf, nc, columnas);
+                encontrados++;
+            }
+        }
+    }
+    return encontrados;
+}
+
+int generarValorAleatorio()
+{
+    int probabilidad = rand() % 100;
+    if (probabilidad < 5) return 7;
+
+    return (rand() % 6) + 1;
+}
+
 int calcularPuntosDeMatch(int filaInicio, int colInicio, int filaFin, int colFin)
 {
-    int longitud = (filaInicio == filaFin) ? (colFin - colInicio + 1)
-                                            : (filaFin - filaInicio + 1);
+    int longitud = (filaInicio == filaFin) ? (colFin - colInicio + 1): (filaFin - filaInicio + 1);
     int puntos = longitud * 10;
-    if (longitud > 3)
-        puntos += (longitud - 3) * 5;
+    if (longitud > 3) puntos += (longitud - 3) * 5;
+
     return puntos;
 }
 
-int eliminarCombinaciones(unsigned char* tablero, int columnas, int total,
-                          int matchFilaInicio[], int matchColInicio[], int matchFilaFin[], int matchColFin[])
+int eliminarCombinaciones(unsigned char* tablero, int filas, int columnas, int total,
+                          int matchFilaInicio[], int matchColInicio[],
+                          int matchFilaFin[], int matchColFin[], int& fichasEliminadas)
 {
     int puntosGanados = 0;
+
     for (int k = 0; k < total; k++)
     {
-        puntosGanados += calcularPuntosDeMatch(matchFilaInicio[k], matchColInicio[k],
-                                               matchFilaFin[k], matchColFin[k]);
+        int puntosMatch = calcularPuntosDeMatch(matchFilaInicio[k], matchColInicio[k],
+                                                matchFilaFin[k], matchColFin[k]);
+        int especialesActivados = 0;
+
         if (matchFilaInicio[k] == matchFilaFin[k])
         {
-            // horizontal
             for (int c = matchColInicio[k]; c <= matchColFin[k]; c++)
+            {
+                especialesActivados += revisarYEliminarVecinosEspeciales(tablero, filas, columnas, matchFilaInicio[k], c);
                 eliminarFicha(tablero, matchFilaInicio[k], c, columnas);
+                fichasEliminadas++;
+            }
         }
         else
         {
-            // vertical
             for (int f = matchFilaInicio[k]; f <= matchFilaFin[k]; f++)
+            {
+                especialesActivados += revisarYEliminarVecinosEspeciales(tablero, filas, columnas, f, matchColInicio[k]);
                 eliminarFicha(tablero, f, matchColInicio[k], columnas);
+                fichasEliminadas++;
+            }
         }
+        fichasEliminadas += especialesActivados;
+
+        if (especialesActivados > 0)
+            puntosMatch *= (1 + especialesActivados);
+
+        puntosGanados += puntosMatch;
     }
+
     return puntosGanados;
 }
 
@@ -254,22 +300,25 @@ void regenerarVacios(unsigned char* tablero, int filas, int columnas)
         {
             if (obtenerFicha(tablero, i, j, columnas) == 0)
             {
-                int numero = (rand() % 6) + 1;
+                int numero =  generarValorAleatorio();
                 guardarFicha(tablero, i, j, columnas, numero);
             }
         }
     }
 }
 
-void procesarCascada(unsigned char* tablero, int filas, int columnas, int& puntajeTotal)
+void procesarCascada(unsigned char* tablero, int filas, int columnas, int& puntajeTotal,
+                     int& cascadas, int& combinacionesDetectadas, int& fichasEliminadas)
 {
-    int vuelta = 1;
+    int vuelta = 0;
     int N = maxCombinaciones(filas, columnas);
     int* matchFilaInicio = new int[N];
     int* matchColInicio = new int[N];
     int* matchFilaFin = new int[N];
     int* matchColFin = new int[N];
-
+    cascadas = 0;
+    combinacionesDetectadas = 0;
+    fichasEliminadas = 0;
     int total;
     do
     {
@@ -281,11 +330,13 @@ void procesarCascada(unsigned char* tablero, int filas, int columnas, int& punta
     //std::cout << "\n--- Vuelta " << vuelta << ": " << total << " combinaciones ---\n";
         if (total > 0)
         {
-            int puntosVuelta = eliminarCombinaciones(tablero, columnas, total,
-                                  matchFilaInicio, matchColInicio,
-                                  matchFilaFin, matchColFin);
-            puntajeTotal += puntosVuelta * vuelta;
             vuelta++;
+            combinacionesDetectadas += total;
+            int puntosVuelta = eliminarCombinaciones(tablero, filas, columnas, total,
+                                                     matchFilaInicio, matchColInicio,
+                                                     matchFilaFin, matchColFin, fichasEliminadas);
+            puntajeTotal += puntosVuelta * vuelta;
+            cascadas = vuelta;
         }
 
     } while (total > 0);
@@ -378,7 +429,7 @@ void llenarAleatorio(unsigned char* tablero, int columnas,
     {
         for (int j = columnaInicio; j < columnaFin; j++)
         {
-            int numero = (rand() % 7) + 1;
+            int numero = generarValorAleatorio();
             guardarFicha(tablero, i, j, columnas, numero);
         }
     }

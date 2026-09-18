@@ -7,12 +7,12 @@ using namespace std;
 void refrescarPantalla(unsigned char* tablero, int filas, int columnas)
 {
     imprimirTablero(tablero, filas, columnas);
-    imprimirBytes(tablero, filas, columnas);
+    //imprimirBytes(tablero, filas, columnas);
 }
 
 void mostrarMenu()
 {
-    cout << "\n===== SWEET CRUSH =====\n";
+    cout << "\n===== SWEET - CRUSH =====\n";
     cout << "1. Eliminar ficha\n";
     cout << "2. Insertar fila\n";
     cout << "3. Insertar columna\n";
@@ -33,11 +33,15 @@ void juego()
     cout << "Ingrese Columnas: ";
     cin >> columnas;
 
-    int capacidadActual = bytesNecesarios(filas, columnas), puntajeTotal = 0, nada;
+    int capacidadActual = bytesNecesarios(filas, columnas);
+    int eliminacionesUsuario = 0, fichasEliminadasTotal = 0, combinacionesTotal = 0, cascadasUltimaJugada = 0, puntajeTotal = 0, nada;
+
     unsigned char* tablero = new unsigned char[capacidadActual]();
     llenarAleatorio(tablero, columnas, 0, filas, 0, columnas);
 
-    procesarCascada(tablero, filas, columnas, nada);
+    //int cascadasIniciales, combosIniciales, fichasIniciales;
+
+    procesarCascada(tablero, filas, columnas, nada, nada, nada, nada);
     refrescarPantalla(tablero, filas, columnas);
 
     int opcion;
@@ -56,6 +60,8 @@ void juego()
             cout << "Columna (1 a " << columnas << "): ";
             cin >> c;
             eliminarFicha(tablero, f - 1, c - 1, columnas);
+            eliminacionesUsuario++;
+            fichasEliminadasTotal++;
             break;
         }
         case 2:
@@ -100,9 +106,23 @@ void juego()
 
         if (opcion >= 1 && opcion <= 5)
         {
-            procesarCascada(tablero, filas, columnas, puntajeTotal);
+            int cascadasJugada, combosJugada, fichasJugada;
+            procesarCascada(tablero, filas, columnas, puntajeTotal,
+                            cascadasJugada, combosJugada, fichasJugada);
+
+            cascadasUltimaJugada = cascadasJugada;
+            combinacionesTotal += combosJugada;
+            fichasEliminadasTotal += fichasJugada;
+
             refrescarPantalla(tablero, filas, columnas);
-            cout<<"Puntaje: "<<puntajeTotal;
+
+            cout << "\n--- Estado del juego ---\n";
+            cout << "Dimensiones: " << filas << " x " << columnas << "\n";
+            cout << "Eliminaciones del usuario: " << eliminacionesUsuario << "\n";
+            cout << "Fichas eliminadas (total): " << fichasEliminadasTotal << "\n";
+            cout << "Combinaciones detectadas (total): " << combinacionesTotal << "\n";
+            cout << "Cascadas en esta jugada: " << cascadasUltimaJugada << "\n";
+            cout << "Puntaje: " << puntajeTotal << "\n";
         }
 
     } while (opcion != 6);
