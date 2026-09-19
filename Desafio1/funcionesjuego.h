@@ -7,7 +7,9 @@ int generarValorAleatorio();
 int calcularPuntosDeMatch(int filaInicio, int colInicio, int filaFin, int colFin);
 int eliminarCombinaciones(unsigned char* tablero, int filas, int columnas, int total,int matchFilaInicio[],
                           int matchColInicio[],int matchFilaFin[], int matchColFin[],int& fichasEliminadas);
-int detectarCombinacion(unsigned char* tablero, int filas, int columnas);
+int detectarCombinacion(unsigned char* tablero, int filas, int columnas,
+                        int matchFilaInicio[], int matchColInicio[],
+                        int matchFilaFin[], int matchColFin[]);
 
 void imprimirTableroBits(unsigned char* tablero, int filas, int columnas);
 void eliminarFila(unsigned char*& tablero, int& filas, int columnas,

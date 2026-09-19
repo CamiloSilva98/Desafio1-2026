@@ -10,7 +10,7 @@ void refrescarPantalla(unsigned char* tablero, int filas, int columnas)
 {
     imprimirTablero(tablero, filas, columnas);
     //imprimirBytes(tablero, filas, columnas);
-    imprimirTableroBits(tablero, filas, columnas);
+    //imprimirTableroBits(tablero, filas, columnas);
 }
 
 void mostrarMenu()
@@ -32,17 +32,42 @@ void juego()
     cout<<"**Para crear tablero ingrese filas y columnas**\n";
     int filas, columnas;
     cout << "Ingrese Filas: ";
-    cin >> filas;
+    while(!(cin >> filas))
+    {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Entrada invalida, Ingrese un numero: ";
+    }
     cout << "Ingrese Columnas: ";
-    cin >> columnas;
+    while(!(cin >> columnas))
+    {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Entrada invalida, Ingrese un numero: ";
+    }
+    while(filas < 1 || columnas < 1)
+    {
+        cout << "Ingrese Filas: ";
+        while(!(cin >> filas))
+        {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Entrada invalida, Ingrese un numero: ";
+        }
+        cout << "Ingrese Columnas: ";
+        while(!(cin >> columnas))
+        {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Entrada invalida, Ingrese un numero: ";
+        }
+    }
 
     int capacidadActual = bytesNecesarios(filas, columnas);
     int eliminacionesUsuario = 0, fichasEliminadasTotal = 0, combinacionesTotal = 0, cascadasUltimaJugada = 0, puntajeTotal = 0, nada;
 
     unsigned char* tablero = new unsigned char[capacidadActual]();
     llenarAleatorio(tablero, columnas, 0, filas, 0, columnas);
-
-    //int cascadasIniciales, combosIniciales, fichasIniciales;
 
     procesarCascada(tablero, filas, columnas, nada, nada, nada, nada);
     refrescarPantalla(tablero, filas, columnas);
@@ -51,7 +76,12 @@ void juego()
     do
     {
         mostrarMenu();
-        cin >> opcion;
+        while(!(cin >> opcion))
+        {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Entrada invalida, Ingrese un numero: ";
+        }
 
         switch (opcion)
         {
@@ -59,28 +89,69 @@ void juego()
         {
             int f, c;
             cout << "Fila (1 a " << filas << "): ";
-            cin >> f;
+            while(!(cin >> f))
+            {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Entrada invalida, Ingrese un numero: ";
+            }
             cout << "Columna (1 a " << columnas << "): ";
-            cin >> c;
-            eliminarFicha(tablero, f - 1, c - 1, columnas);
-            eliminacionesUsuario++;
-            fichasEliminadasTotal++;
+            while(!(cin >> c))
+            {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Entrada invalida, Ingrese un numero: ";
+            }
+            if (f < 1 || f > filas || c < 1 || c > columnas)
+            {
+                cout << "Posicion invalida.\n";
+            }
+            else
+            {
+                eliminarFicha(tablero, f - 1, c - 1, columnas);
+                eliminacionesUsuario++;
+                fichasEliminadasTotal++;
+            }
             break;
         }
         case 2:
         {
             int f;
             cout << "Insertar en fila (1 a " << filas + 1 << "): ";
-            cin >> f;
-            insertarFila(tablero, filas, columnas, f - 1, capacidadActual);
+            while(!(cin >> f))
+            {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Entrada invalida, Ingrese un numero: ";
+            }
+            if (f < 1 || f > filas + 1)
+            {
+                cout << "Posicion invalida.\n";
+            }
+            else
+            {
+                insertarFila(tablero, filas, columnas, f - 1, capacidadActual);
+            }
             break;
         }
         case 3:
         {
             int c;
             cout << "Insertar en columna (1 a " << columnas + 1 << "): ";
-            cin >> c;
-            insertarColumna(tablero, filas, columnas, c - 1, capacidadActual);
+            while(!(cin >> c))
+            {
+                cin.clear();
+                cin.ignore(1000, '\n');
+                cout << "Entrada invalida, Ingrese un numero: ";
+            }
+            if (c < 1 || c > columnas + 1)
+            {
+                cout << "Posicion invalida.\n";
+            }
+            else
+            {
+                insertarColumna(tablero, filas, columnas, c - 1, capacidadActual);
+            }
             break;
         }
         case 4:
@@ -93,8 +164,20 @@ void juego()
             {
                 int f;
                 cout << "Eliminar fila (1 a " << filas << "): ";
-                cin >> f;
-                eliminarFila(tablero, filas, columnas, f - 1, capacidadActual);
+                while(!(cin >> f))
+                {
+                    cin.clear();
+                    cin.ignore(1000, '\n');
+                    cout << "Entrada invalida, Ingrese un numero: ";
+                }
+                if(f > filas || f <= 0)
+                {
+                    cout<<"Fila invalido.\n";
+                }
+                else
+                {
+                    eliminarFila(tablero, filas, columnas, f - 1, capacidadActual);
+                }
             }
             break;
         }
@@ -102,14 +185,26 @@ void juego()
         {
             if(columnas <= 1)
             {
-                cout << "No e puede eliminar: quedaria un tablero sin columnas.\n";
+                cout << "No se puede eliminar: quedaria un tablero sin columnas.\n";
             }
             else
             {
                 int c;
                 cout << "Eliminar columna (1 a " << columnas << "): ";
-                cin >> c;
-                eliminarColumna(tablero, filas, columnas, c - 1, capacidadActual);
+                while(!(cin >> c))
+                {
+                    cin.clear();
+                    cin.ignore(1000, '\n');
+                    cout << "Entrada invalida, Ingrese un numero: ";
+                }
+                if(c > columnas ||  c <= 0)
+                {
+                    cout << "Columna invalida.\n";
+                }
+                else
+                {
+                    eliminarColumna(tablero, filas, columnas, c - 1, capacidadActual);
+                }
             }
 
             break;

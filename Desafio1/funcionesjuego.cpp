@@ -45,7 +45,7 @@ int revisarYEliminarVecinosEspeciales(unsigned char* tablero, int filas, int col
 int generarValorAleatorio()
 {
     int probabilidad = rand() % 100;
-    if (probabilidad < 4) return 7;
+    if (probabilidad < 3) return 7;
 
     return (rand() % 6) + 1;
 }
